@@ -28,7 +28,8 @@ try:
         '''i1 = input("Ingrese nombre de nuevo rango: ")
         i2 = input("Ingrese descuento unico: ")
         i3 = input("Ingrese descripcion: ")
-        cursor.execute("INSERT INTO RANGO (nombre, descuento_unico, beneficios) VALUES ('Brillantina', 10, 'Brillitos para tus compras')")
+        to_execute = "INSERT INTO RANGO (nombre, descuento_unico, beneficios) VALUES ('{0}', {1}, '{2}')".format(i1,i2,i3)
+        cursor.execute(to_execute)
         connection.commit()
         print("Brillante sonrisa colgate")'''
         #DELETE
