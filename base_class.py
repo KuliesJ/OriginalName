@@ -1,8 +1,7 @@
 import mysql.connector
 
 class base:
-    def __init__(self, table_name):
-        self.table_name = table_name
+    def __init__(self):
         self.connection = mysql.connector.connect(
             user = "admin",
             password = "password",
@@ -10,11 +9,5 @@ class base:
             database = "gatabase",
             port = "10108"
         )
-
-    def id_search(self, id):
-        self.cursor.execute("""
-            SELECT *
-            FROM {0}
-            WHERE idRango = {1}
-        """.format(self.table_name, id))
+        self.cursor = self.connection.cursor()
 
