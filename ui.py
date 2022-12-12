@@ -5,7 +5,7 @@ from rich.text import Text
 from rich.markdown import Markdown
 from rich.prompt import IntPrompt
 from rich.table import Table
-from database import selectExample
+from database import select, getAllTables
 
 def createTable(l):
     title = l[0]
@@ -27,28 +27,35 @@ def createTable(l):
 def app(cursor):
 
     allOptions = ['Select', 'Insert', 'Delete', 'Exit']
+    allTables = getAllTables(cursor)
 
-    l = ""
+    lm = ""
+    ls = ""
 
     for o in allOptions:
-        l += "1. " + o + "\n"
+        lm += "1. " + o + "\n"
 
-    main_panel_content = Group(Text.from_markup("[bold red]Options"), Markdown(l))
+    for t in allTables:
+        ls += "1. " + t + "\n"
+
+    main_panel_content = Group(Text.from_markup("[bold red]Options"), Markdown(lm))
     main_panel = Panel(main_panel_content)
 
-    select_panel_content = Group(Text.from_markup("[bold red]Options"), Markdown(l))
+    select_panel_content = Group(Text.from_markup("[bold red]Tables"), Markdown(ls))
     select_panel = Panel(select_panel_content)
 
     option = None
     while option != len(allOptions):
         console.print(Panel(Text.from_markup("[bold]DATABASE FINAL PROJECT", style='red on white', justify="center")))
         console.print(main_panel)
-        option = IntPrompt.ask("Enter name", choices=[str(x + 1) for x in range(len(allOptions))])
+        option = IntPrompt.ask("Select an option", choices=[str(x + 1) for x in range(len(allOptions))])
         console.print(str(option) + ' ' + allOptions[option - 1], style="bold italic blue")
         match option:
             case 1:
-                l = selectExample(cursor, "USUARIO")
-                console.print(createTable(l))
+                console.print(select_panel)
+                t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
+                x = select(cursor, allTables[t - 1])
+                console.print(createTable(x))
             case 2:
                 console.print(allOptions[1])
             case 3:
