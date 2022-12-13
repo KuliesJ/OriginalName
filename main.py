@@ -14,9 +14,9 @@ try:
         print("Connected")
         #info = connection.get_server_info()
         #print(info)
-        
+
         #SELECT SAMPLE
-        app(connection.cursor())
+        app(connection)
         #INSERT
 
         #DELETE

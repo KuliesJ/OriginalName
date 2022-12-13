@@ -3,9 +3,9 @@ from rich.panel import Panel
 from rich.console import Group
 from rich.text import Text
 from rich.markdown import Markdown
-from rich.prompt import IntPrompt
+from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
-from database import select, getAllTables
+from database import select, getAllTables, insert, getTableInfo
 
 def createTable(l):
     title = l[0]
@@ -24,10 +24,10 @@ def createTable(l):
     return table
 
 
-def app(cursor):
+def app(connection):
 
     allOptions = ['Select', 'Insert', 'Delete', 'Exit']
-    allTables = getAllTables(cursor)
+    allTables = getAllTables(connection.cursor())
 
     lm = ""
     ls = ""
@@ -54,10 +54,29 @@ def app(cursor):
             case 1:
                 console.print(select_panel)
                 t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
-                x = select(cursor, allTables[t - 1])
+                x = select(connection.cursor(), allTables[t - 1])
                 console.print(createTable(x))
+                console.print("Rows: " + str(len(x[2])), style="italic blue")
+
             case 2:
-                console.print(allOptions[1])
+                console.print(select_panel)
+                t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
+                
+                allColumns = getTableInfo(connection.cursor(), allTables[t - 1])
+                console.print("[bold red]Complete the data")
+                listnCol = []
+                listnData = []
+                for c in allColumns[1]:
+                    if c[1] == 'varchar':
+                        ndata = Prompt.ask(c[0] + " [italic blue](" + c[1] + ")")
+                        ndata = "'" + ndata + "'"
+                    if c[1] == 'int':
+                        ndata = IntPrompt.ask(c[0] + " [italic blue](" + c[1] + ")")
+                        ndata = str(ndata)
+                    listnCol.append(c[0])
+                    listnData.append(ndata)
+                insert(connection, [allTables[t - 1], listnCol, listnData])
+
             case 3:
                 console.print(allOptions[2])
             case _:
