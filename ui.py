@@ -81,7 +81,7 @@ def app(connection):
                 console.print(select_panel)
                 t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
                 
-                pk = getTablePK(connection.cursor(), "RANGO")
+                pk = getTablePK(connection.cursor(), allTables[t - 1])
                 ndata = IntPrompt.ask("[bold red]PK value of the row [italic blue](" + pk + ")")
                 delete(connection, [allTables[t - 1], pk, str(ndata)])
 

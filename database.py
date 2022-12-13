@@ -41,14 +41,13 @@ def getTableInfo(cursor, title):
     return [list(cursor.column_names), list(r)]
     
 def getTablePK(cursor, title):
-
     cursor.execute("""SELECT k.column_name
 FROM information_schema.table_constraints t
 JOIN information_schema.key_column_usage k
 USING(constraint_name,table_schema,table_name)
 WHERE t.constraint_type='PRIMARY KEY'
   AND t.table_schema='gatabase'
-  AND t.table_name='USUARIO' AND k.column_name <> ALL(SELECT
+  AND t.table_name='""" + title + """' AND k.column_name <> ALL(SELECT
     q.column_name
 FROM
     information_schema.table_constraints u
@@ -58,9 +57,9 @@ JOIN information_schema.key_column_usage q USING(
         TABLE_NAME
     )
 WHERE
-    u.constraint_type = 'FOREIGN KEY' AND u.table_schema = 'gatabase' AND u.table_name = 'USUARIO');""")
+    u.constraint_type = 'FOREIGN KEY' AND u.table_schema = 'gatabase' AND u.table_name = '""" + title + """');""")
     r = cursor.fetchall()
-
+    print(r)
     return r[0][0]
 
 def delete(connector, l):
