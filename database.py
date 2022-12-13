@@ -42,7 +42,23 @@ def getTableInfo(cursor, title):
     
 def getTablePK(cursor, title):
 
-    cursor.execute("SELECT k.column_name FROM information_schema.table_constraints t JOIN information_schema.key_column_usage k USING(constraint_name,table_schema,table_name) WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='gatabase' AND t.table_name='" + title + "' AND k.column_name not in (SELECT q.column_name FROM information_schema.table_constraints u JOIN information_schema.key_column_usage q USING(constraint_name,table_schema,table_name) WHERE u.constraint_type='FOREIGN KEY' AND u.table_schema='gatabase' AND u.table_name='" + title + "')")
+    cursor.execute("""SELECT k.column_name
+FROM information_schema.table_constraints t
+JOIN information_schema.key_column_usage k
+USING(constraint_name,table_schema,table_name)
+WHERE t.constraint_type='PRIMARY KEY'
+  AND t.table_schema='gatabase'
+  AND t.table_name='USUARIO' AND k.column_name <> ALL(SELECT
+    q.column_name
+FROM
+    information_schema.table_constraints u
+JOIN information_schema.key_column_usage q USING(
+        CONSTRAINT_NAME,
+        table_schema,
+        TABLE_NAME
+    )
+WHERE
+    u.constraint_type = 'FOREIGN KEY' AND u.table_schema = 'gatabase' AND u.table_name = 'USUARIO');""")
     r = cursor.fetchall()
 
     return r[0][0]
@@ -53,7 +69,7 @@ def delete(connector, l):
     cond = l[2]
 
     cursor = connector.cursor()
-    cursor.execute("DELETE FROM " + title + "WHERE " + pk + "=" + cond)
+    cursor.execute("DELETE FROM " + title + " WHERE " + pk + "=" + cond)
 
     connector.commit()
 
