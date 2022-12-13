@@ -5,7 +5,7 @@ from rich.text import Text
 from rich.markdown import Markdown
 from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
-from database import select, getAllTables, insert, getTableInfo
+from database import select, getAllTables, insert, getTableInfo, getTablePK, delete, execute
 
 def createTable(l):
     title = l[0]
@@ -26,7 +26,7 @@ def createTable(l):
 
 def app(connection):
 
-    allOptions = ['Select', 'Insert', 'Delete', 'Exit']
+    allOptions = ['Select', 'Insert', 'Delete', 'Valoraciones de usuarios con rango "Moises"', 'Videojuegos que tienen genero "Meyo"', 'Editores que viven en la calle1', 'Usuarios que por su rango tengan un descuento_unico mayor a 8', 'Exit']
     allTables = getAllTables(connection.cursor())
 
     lm = ""
@@ -78,6 +78,32 @@ def app(connection):
                 insert(connection, [allTables[t - 1], listnCol, listnData])
 
             case 3:
-                console.print(allOptions[2])
+                console.print(select_panel)
+                t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
+                
+                pk = getTablePK(connection.cursor(), "RANGO")
+                ndata = IntPrompt.ask("[bold red]PK value of the row [italic blue](" + pk + ")")
+                delete(connection, [allTables[t - 1], pk, str(ndata)])
+
+            case 4:
+                x = execute(connection.cursor(), 'SELECT u.nombre, v.comentario FROM VALORACION AS v JOIN USUARIO AS u ON (v.CLIENTE_idCLIENTE = u.idCLIENTE) JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.nombre = "Moises"')
+                console.print(createTable([allOptions[option - 1]] + x))
+                console.print("Rows: " + str(len(x[1])), style="italic blue")
+            
+            case 5:
+                x = execute(connection.cursor(), 'SELECT v.nombre FROM GENERO_has_VIDEOJUEGO gv JOIN GENERO g ON (gv.GENERO_idGENERO = g.idGENERO) JOIN VIDEOJUEGO v ON (gv.VIDEOJUEGO_idVIDEOJUEGO = v.idVIDEOJUEGO) WHERE g.nombre = "Meyo"')
+                console.print(createTable([allOptions[option - 1]] + x))
+                console.print("Rows: " + str(len(x[1])), style="italic blue")
+
+            case 6:
+                x = execute(connection.cursor(), 'SELECT e.nombre FROM EDITOR e JOIN UBICACION u ON (e.UBICACION_idUBICACION = u.idUBICACION) WHERE u.calle = "calle1"')
+                console.print(createTable([allOptions[option - 1]] + x))
+                console.print("Rows: " + str(len(x[1])), style="italic blue")
+
+            case 7:
+                x = execute(connection.cursor(), 'SELECT u.nombre, u.correo FROM USUARIO AS u JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.descuento_unico > 8')
+                console.print(createTable([allOptions[option - 1]] + x))
+                console.print("Rows: " + str(len(x[1])), style="italic blue")
+
             case _:
                 pass
