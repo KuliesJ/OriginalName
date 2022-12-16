@@ -5,6 +5,7 @@ from rich.text import Text
 from rich.markdown import Markdown
 from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
+from rich.align import Align
 from database import select, getAllTables, insert, getTableInfo, getTablePK, delete, execute
 
 def createTable(l):
@@ -12,7 +13,7 @@ def createTable(l):
     names = l[1]
     data = l[2]
 
-    table = Table(title=title)
+    table = Table(title=title, title_style="italic cyan", row_styles=["white", "grey82"])
     for name in names:
         table.add_column(name)
     
@@ -21,7 +22,7 @@ def createTable(l):
 
         table.add_row(*x)
     
-    return table
+    return Align(Panel(Group(table, "[italic blue]Rows: [cyan]" + str(len(data))), expand=False), "center")
 
 
 def app(connection):
@@ -46,7 +47,7 @@ def app(connection):
 
     option = None
     while option != len(allOptions):
-        console.print(Panel(Text.from_markup("[bold]DATABASE FINAL PROJECT", style='red on white', justify="center")))
+        console.print(Panel(Text.from_markup("[bold]DATABASE FINAL PROJECT", style='red', justify="center")))
         console.print(main_panel)
         option = IntPrompt.ask("Select an option", choices=[str(x + 1) for x in range(len(allOptions))])
         console.print(str(option) + ' ' + allOptions[option - 1], style="bold italic blue")
@@ -56,8 +57,7 @@ def app(connection):
                 t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
                 x = select(connection.cursor(), allTables[t - 1])
                 console.print(createTable(x))
-                console.print("Rows: " + str(len(x[2])), style="italic blue")
-
+                
             case 2:
                 console.print(select_panel)
                 t = IntPrompt.ask("Select a table", choices=[str(x + 1) for x in range(len(allTables))])
@@ -86,28 +86,26 @@ def app(connection):
                 delete(connection, [allTables[t - 1], pk, str(ndata)])
 
             case 4:
-                sample4 = input("Obtener los comentarios dejados por usuarios que tengan el rango: ")
+                sample4 = Prompt.ask("Obtener los comentarios dejados por usuarios que tengan el rango", default="Moises")
                 x = execute(connection.cursor(), 'SELECT u.nombre, v.comentario FROM VALORACION AS v JOIN USUARIO AS u ON (v.CLIENTE_idCLIENTE = u.idCLIENTE) JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.nombre = "{}"'.format(sample4))
-                console.print(createTable([allOptions[option - 1]] + x))
-                console.print("Rows: " + str(len(x[1])), style="italic blue")
+                console.print(createTable([allOptions[option - 1].replace("X", sample4)] + x))
             
             case 5:
-                sample5 = input("Obtener los juegos que tengan el genero: ")
+                sample5 = Prompt.ask("Obtener los juegos que tengan el genero", default="Meyo")
                 x = execute(connection.cursor(), 'SELECT v.nombre, v.horas_de_juego, v.precio  FROM GENERO_has_VIDEOJUEGO gv JOIN GENERO g ON (gv.GENERO_idGENERO = g.idGENERO) JOIN VIDEOJUEGO v ON (gv.VIDEOJUEGO_idVIDEOJUEGO = v.idVIDEOJUEGO) WHERE g.nombre = "{}"'.format(sample5))
-                console.print(createTable([allOptions[option - 1]] + x))
-                console.print("Rows: " + str(len(x[1])), style="italic blue")
+                console.print(createTable([allOptions[option - 1].replace("X", sample5)] + x))
 
             case 6:
-                sample6 = input("Obtener los editores que vivan en la calle: ")
+                sample6 = Prompt.ask("Obtener los editores que vivan en la calle", default="calle1")
                 x = execute(connection.cursor(), 'SELECT e.nombre, e.correo, u.numero FROM EDITOR e JOIN UBICACION u ON (e.UBICACION_idUBICACION = u.idUBICACION) WHERE u.calle = "{}"'.format(sample6))
-                console.print(createTable([allOptions[option - 1]] + x))
-                console.print("Rows: " + str(len(x[1])), style="italic blue")
+                console.print(createTable([allOptions[option - 1].replace("X", sample6)] + x))
 
             case 7:
-                sample7 = input("Obtener usuarios que tengan un descuento mayor a: ")
-                x = execute(connection.cursor(), 'SELECT u.nombre, u.correo FROM USUARIO AS u JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.descuento_unico > {}'.format(sample7))
-                console.print(createTable([allOptions[option - 1]] + x))
-                console.print("Rows: " + str(len(x[1])), style="italic blue")
+                sample7 = IntPrompt.ask("Obtener usuarios que tengan un descuento mayor a", default="0")
+                x = execute(connection.cursor(), 'SELECT u.nombre, u.correo, r.descuento_unico FROM USUARIO AS u JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.descuento_unico > {}'.format(str(sample7)))
+                console.print(createTable([allOptions[option - 1].replace("X", str(sample7))] + x))
 
             case _:
                 pass
+        if option != 8:
+            Prompt.ask("Press [magenta]Enter[/] to continue")
