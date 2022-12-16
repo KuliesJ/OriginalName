@@ -12,16 +12,9 @@ try:
     )
     if connection.is_connected():
         print("Connected")
-        #info = connection.get_server_info()
-        #print(info)
-
-        #SELECT SAMPLE
+        
         app(connection)
-        #INSERT
-
-        #DELETE
-
-        #UPDATE
+        
 
 except Error as ex:
     print("Not connected: ", ex)

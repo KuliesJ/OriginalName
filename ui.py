@@ -26,7 +26,7 @@ def createTable(l):
 
 def app(connection):
 
-    allOptions = ['Select', 'Insert', 'Delete', 'Valoraciones de usuarios con rango "Moises"', 'Videojuegos que tienen genero "Meyo"', 'Editores que viven en la calle1', 'Usuarios que por su rango tengan un descuento_unico mayor a 8', 'Exit']
+    allOptions = ['Select', 'Insert', 'Delete', 'Valoraciones de usuarios con rango "X"', 'Videojuegos que tienen genero "X"', 'Editores que viven en la calle "X"', 'Usuarios que por su rango tengan un descuento unico mayor a X', 'Exit']
     allTables = getAllTables(connection.cursor())
 
     lm = ""
@@ -86,22 +86,26 @@ def app(connection):
                 delete(connection, [allTables[t - 1], pk, str(ndata)])
 
             case 4:
-                x = execute(connection.cursor(), 'SELECT u.nombre, v.comentario FROM VALORACION AS v JOIN USUARIO AS u ON (v.CLIENTE_idCLIENTE = u.idCLIENTE) JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.nombre = "Moises"')
+                sample4 = input("Obtener los comentarios dejados por usuarios que tengan el rango: ")
+                x = execute(connection.cursor(), 'SELECT u.nombre, v.comentario FROM VALORACION AS v JOIN USUARIO AS u ON (v.CLIENTE_idCLIENTE = u.idCLIENTE) JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.nombre = "{}"'.format(sample4))
                 console.print(createTable([allOptions[option - 1]] + x))
                 console.print("Rows: " + str(len(x[1])), style="italic blue")
             
             case 5:
-                x = execute(connection.cursor(), 'SELECT v.nombre FROM GENERO_has_VIDEOJUEGO gv JOIN GENERO g ON (gv.GENERO_idGENERO = g.idGENERO) JOIN VIDEOJUEGO v ON (gv.VIDEOJUEGO_idVIDEOJUEGO = v.idVIDEOJUEGO) WHERE g.nombre = "Meyo"')
+                sample5 = input("Obtener los juegos que tengan el genero: ")
+                x = execute(connection.cursor(), 'SELECT v.nombre, v.horas_de_juego, v.precio  FROM GENERO_has_VIDEOJUEGO gv JOIN GENERO g ON (gv.GENERO_idGENERO = g.idGENERO) JOIN VIDEOJUEGO v ON (gv.VIDEOJUEGO_idVIDEOJUEGO = v.idVIDEOJUEGO) WHERE g.nombre = "{}"'.format(sample5))
                 console.print(createTable([allOptions[option - 1]] + x))
                 console.print("Rows: " + str(len(x[1])), style="italic blue")
 
             case 6:
-                x = execute(connection.cursor(), 'SELECT e.nombre FROM EDITOR e JOIN UBICACION u ON (e.UBICACION_idUBICACION = u.idUBICACION) WHERE u.calle = "calle1"')
+                sample6 = input("Obtener los editores que vivan en la calle: ")
+                x = execute(connection.cursor(), 'SELECT e.nombre, e.correo, u.numero FROM EDITOR e JOIN UBICACION u ON (e.UBICACION_idUBICACION = u.idUBICACION) WHERE u.calle = "{}"'.format(sample6))
                 console.print(createTable([allOptions[option - 1]] + x))
                 console.print("Rows: " + str(len(x[1])), style="italic blue")
 
             case 7:
-                x = execute(connection.cursor(), 'SELECT u.nombre, u.correo FROM USUARIO AS u JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.descuento_unico > 8')
+                sample7 = input("Obtener usuarios que tengan un descuento mayor a: ")
+                x = execute(connection.cursor(), 'SELECT u.nombre, u.correo FROM USUARIO AS u JOIN RANGO AS r ON (u.RANGO_idRANGO = r.idRANGO) WHERE r.descuento_unico > {}'.format(sample7))
                 console.print(createTable([allOptions[option - 1]] + x))
                 console.print("Rows: " + str(len(x[1])), style="italic blue")
 
